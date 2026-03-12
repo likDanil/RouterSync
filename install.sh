@@ -1,6 +1,6 @@
 #!/bin/sh
 # RouterSync — автоматическая установка
-# Одна команда: wget -q -O - https://raw.githubusercontent.com/likDanil/RouterSync/main/install.sh | sh
+# Одна команда: wget -q -O - https://raw.githubusercontent.com/likDanil/RouterSync/refs/heads/main/install.sh | sh
 
 set -e
 
@@ -20,18 +20,17 @@ esac
 
 echo "Архитектура: $ARCH"
 
-REPO="https://github.com/likDanil/RouterSync/raw/main"
-BASE_URL="$REPO/build/$ARCH"
+REPO="https://raw.githubusercontent.com/likDanil/RouterSync/refs/heads/main"
 
 # Создаём директории
 mkdir -p /opt/bin /opt/etc/RouterSync
 
 echo "Загрузка файлов..."
 
-# Скачиваем файлы
-wget -q -O /opt/bin/RouterSync "$BASE_URL/RouterSync" || { echo "Ошибка загрузки бинарника"; exit 1; }
-wget -q -O /opt/etc/RouterSync/config.json "$BASE_URL/config.json" || { echo "Ошибка загрузки конфига"; exit 1; }
-wget -q -O /opt/etc/init.d/S99RouterSync "$BASE_URL/S99RouterSync" || { echo "Ошибка загрузки скрипта"; exit 1; }
+# Скачиваем файлы (бинарник из папки архитектуры, остальное из корня)
+wget -q -O /opt/bin/RouterSync "$REPO/$ARCH/RouterSync" || { echo "Ошибка загрузки бинарника"; exit 1; }
+wget -q -O /opt/etc/RouterSync/config.json "$REPO/config.json" || { echo "Ошибка загрузки конфига"; exit 1; }
+wget -q -O /opt/etc/init.d/S99RouterSync "$REPO/S99RouterSync" || { echo "Ошибка загрузки скрипта"; exit 1; }
 
 # Делаем исполняемыми
 chmod +x /opt/bin/RouterSync /opt/etc/init.d/S99RouterSync
