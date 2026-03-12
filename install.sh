@@ -29,7 +29,15 @@ echo "Загрузка файлов..."
 
 # Скачиваем файлы (бинарник из папки архитектуры, остальное из корня)
 wget -q -O /opt/bin/RouterSync "$REPO/$ARCH/RouterSync" || { echo "Ошибка загрузки бинарника"; exit 1; }
-wget -q -O /opt/etc/RouterSync/config.json "$REPO/config.json" || { echo "Ошибка загрузки конфига"; exit 1; }
+
+# Конфиг загружаем только если его нет (чтобы не перезаписывать пользовательский)
+if [ ! -f /opt/etc/RouterSync/config.json ]; then
+    echo "Конфиг не найден, загружаем новый..."
+    wget -q -O /opt/etc/RouterSync/config.json "$REPO/config.json" || { echo "Ошибка загрузки конфига"; exit 1; }
+else
+    echo "Конфиг уже существует, пропускаем..."
+fi
+
 wget -q -O /opt/etc/init.d/S99RouterSync "$REPO/S99RouterSync" || { echo "Ошибка загрузки скрипта"; exit 1; }
 
 # Делаем исполняемыми
