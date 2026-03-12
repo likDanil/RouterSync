@@ -49,7 +49,6 @@ echo "Установка завершена!"
 /opt/etc/init.d/S99RouterSync start
 
 # Выводим ссылку
-IP=$(nvram get lan_ipaddr 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo "192.168.1.1")
 echo ""
 echo "=== RouterSync готов ==="
-echo "Откройте в браузере: http://$IP:3400"
+echo "Откройте в браузере: http://IP_роутера:3400"
