@@ -1,0 +1,56 @@
+#!/bin/sh
+# Init.d script for RouterSync (Entware)
+# Установка: скопируйте в /opt/etc/init.d/ и сделайте исполняемым:
+#   cp S99RouterSync /opt/etc/init.d/
+#   chmod +x /opt/etc/init.d/S99RouterSync
+# Управление: /opt/etc/init.d/S99RouterSync start|stop|restart
+
+APP_DIR="/opt/bin"
+CONFIG_DIR="/opt/etc/RouterSync"
+BIN="$APP_DIR/RouterSync"
+PIDFILE="$APP_DIR/.RouterSync"
+
+case "$1" in
+  start)
+    if [ -f "$PIDFILE" ]; then
+      pid=$(cat "$PIDFILE")
+      if kill -0 "$pid" 2>/dev/null; then
+        echo "RouterSync already running (PID $pid)"
+        exit 0
+      fi
+      rm -f "$PIDFILE"
+    fi
+    if [ ! -x "$BIN" ]; then
+      echo "RouterSync: binary not found or not executable: $BIN"
+      exit 1
+    fi
+    # Создаём директорию конфигурации, если не существует
+    mkdir -p "$CONFIG_DIR"
+    cd "$APP_DIR" || exit 1
+    # Получаем версию и выводим при старте
+    VERSION=$($BIN --version 2>/dev/null || echo "unknown")
+    echo "Starting $VERSION..."
+    $BIN >> .RouterSync.log 2>&1 &
+    echo $! > "$PIDFILE"
+    echo "RouterSync started (port 3400)"
+    ;;
+  stop)
+    if [ -f "$PIDFILE" ]; then
+      pid=$(cat "$PIDFILE")
+      kill "$pid" 2>/dev/null && echo "RouterSync stopped" || echo "RouterSync was not running"
+      rm -f "$PIDFILE"
+    else
+      echo "RouterSync not running"
+    fi
+    ;;
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+exit 0
